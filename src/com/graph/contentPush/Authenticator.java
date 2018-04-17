@@ -14,8 +14,8 @@ import com.microsoft.graph.http.IHttpRequest;
 public class Authenticator {
 	//Get a valid access token using the client credential flow
     private String grantType = "client_credentials";
-    private String tokenEndpoint = "https://login.microsoftonline.com/" + Constants.tenant + "/oauth2/token";
-    private String resourceId = "https%3A%2F%2Fgraph.microsoft.com%2F";
+    private String tokenEndpoint = "https://login.microsoftonline.com/" + Constants.tenant + "/oauth2/v2.0/token";
+    private String scope = "https%3A%2F%2Fgraph.microsoft.com%2F.default";
     private String accessToken = null;
 
     protected IAuthenticationProvider authenticationProvider = null;
@@ -62,12 +62,14 @@ public class Authenticator {
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);
             conn.connect();
+            String secret = Constants.clientSecret.replace("+", "%2B").replace("=", "%3D").replace("/", "%2F");
+            
             OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
-            String payload = String.format("grant_type=%1$s&resource=%2$s&client_id=%3$s&client_secret=%4$s",
+            String payload = String.format("grant_type=%1$s&scope=%2$s&client_id=%3$s&client_secret=%4$s",
                     grantType,
-                    resourceId,
+                    scope,
                     Constants.clientId,
-                    Constants.clientSecret);
+                    secret);
             writer.write(payload);
             writer.close();
             try {
